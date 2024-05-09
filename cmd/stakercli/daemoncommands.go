@@ -38,6 +38,8 @@ const (
 	stakingTimeBlocksFlag      = "staking-time"
 	stakingTransactionHashFlag = "staking-transaction-hash"
 	feeRateFlag                = "fee-rate"
+	stakerAddressFlag          = "staker-address"
+	stakerPubKeyFlag           = "staker-pubkey"
 )
 
 var (
@@ -102,8 +104,8 @@ var getStakeOutputCmd = cli.Command{
 	Usage:     "Generate the output address of the staking position",
 	Flags: []cli.Flag{
 		cli.StringFlag{
-			Name:     stakerAddressFlag,
-			Usage:    "BTC address of the staker in hex",
+			Name:     stakerPubKeyFlag,
+			Usage:    "BTC public key of the staker",
 			Required: true,
 		},
 		cli.Int64Flag{
@@ -341,7 +343,7 @@ func babylonFinalityProviders(ctx *cli.Context) error {
 }
 
 func getStakeOutput(ctx *cli.Context) error {
-	stakerAddress := ctx.String(stakerAddressFlag)
+	stakerPubKey := ctx.String(stakerPubKeyFlag)
 	stakingAmount := ctx.Int64(helpers.StakingAmountFlag)
 	fpPks := ctx.StringSlice(fpPksFlag)
 	stakingTimeBlocks := ctx.Int64(helpers.StakingTimeBlocksFlag)
@@ -353,7 +355,7 @@ func getStakeOutput(ctx *cli.Context) error {
 	}
 
 	sctx := context.Background()
-	results, err := client.GetStakeOutput(sctx, stakerAddress, stakingAmount, fpPks, stakingTimeBlocks)
+	results, err := client.GetStakeOutput(sctx, stakerPubKey, stakingAmount, fpPks, stakingTimeBlocks)
 	if err != nil {
 		return err
 	}
