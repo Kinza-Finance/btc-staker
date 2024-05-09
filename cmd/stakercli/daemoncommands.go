@@ -19,6 +19,7 @@ var daemonCommands = []cli.Command{
 			checkDaemonHealthCmd,
 			listOutputsCmd,
 			babylonFinalityProvidersCmd,
+			getStakeOutputCmd,
 			stakeCmd,
 			unstakeCmd,
 			stakingDetailsCmd,
