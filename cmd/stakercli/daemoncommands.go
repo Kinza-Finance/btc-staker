@@ -38,7 +38,6 @@ const (
 	stakingTimeBlocksFlag      = "staking-time"
 	stakingTransactionHashFlag = "staking-transaction-hash"
 	feeRateFlag                = "fee-rate"
-	stakerAddressFlag          = "staker-address"
 	stakerPubKeyFlag           = "staker-pubkey"
 )
 
@@ -114,7 +113,7 @@ var getStakeOutputCmd = cli.Command{
 			Required: true,
 		},
 		cli.Int64Flag{
-			Name:     helpers.StakingAmountFlag,
+			Name:     stakingAmountFlag,
 			Usage:    "Staking amount in satoshis",
 			Required: true,
 		},
@@ -124,7 +123,7 @@ var getStakeOutputCmd = cli.Command{
 			Required: true,
 		},
 		cli.Int64Flag{
-			Name:     helpers.StakingTimeBlocksFlag,
+			Name:     stakingTimeBlocksFlag,
 			Usage:    "Staking time in BTC blocks",
 			Required: true,
 		},
@@ -357,15 +356,15 @@ func getStakeOutput(ctx *cli.Context) error {
 	sctx := context.Background()
 
 	stakerKey := ctx.String(stakerPubKeyFlag)
-	stakingAmount := ctx.Int64(helpers.StakingAmountFlag)
+	stakingAmount := ctx.Int64(stakingAmountFlag)
 	fpPks := ctx.StringSlice(fpPksFlag)
-	stakingTimeBlocks := ctx.Int64(helpers.StakingTimeBlocksFlag)
+	stakingTimeBlocks := ctx.Int64(stakingTimeBlocksFlag)
 
 	results, err := client.GetStakeOutput(sctx, stakerKey, stakingAmount, fpPks, stakingTimeBlocks)
 	if err != nil {
 		return err
 	}
-	helpers.PrintRespJSON(results)
+	printRespJSON(results)
 
 	return nil
 }
