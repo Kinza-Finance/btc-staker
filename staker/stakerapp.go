@@ -1398,7 +1398,7 @@ func (app *StakerApp) WatchStaking(
 }
 
 func (app *StakerApp) GetStakeOutput(
-	stakerPubKey *btcec.PublicKey,
+	stakerKey *btcec.PublicKey,
 	stakingAmount btcutil.Amount,
 	fpPks []*btcec.PublicKey,
 	stakingTimeBlocks uint16,
@@ -1446,7 +1446,7 @@ func (app *StakerApp) GetStakeOutput(
 	unspendableKeyPathKey := unspendableKeyPathInternalPubKey()
 
 	babylonScripts, err := newBabylonScriptPaths(
-		stakerPubKey,
+		stakerKey,
 		fpPks,
 		params.CovenantPks,
 		params.CovenantQuruomThreshold,
