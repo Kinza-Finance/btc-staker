@@ -1402,7 +1402,7 @@ func (app *StakerApp) GetStakeOutput(
 	stakingAmount btcutil.Amount,
 	fpPks []*btcec.PublicKey,
 	stakingTimeBlocks uint16,
-) ([]byte, error) {
+) (*btcutil.AddressTaproot, error) {
 	// check we are not shutting down
 	select {
 	case <-app.quit:
@@ -1470,19 +1470,15 @@ func (app *StakerApp) GetStakeOutput(
 	if err != nil {
 		return nil, err
 	}
-
-	taprootPkScript, err := sh.taprootPkScript(app.network)
+	taprootAddr, err := DeriveTaprootAddress(sh.scriptTree,
+		&unspendableKeyPathKey,
+		app.network)
 
 	if err != nil {
 		return nil, err
 	}
 
-	stakingOutput := wire.NewTxOut(int64(stakingAmount), taprootPkScript)
-	if err != nil {
-		return nil, fmt.Errorf("failed to build staking info: %w", err)
-	}
-
-	return stakingOutput.PkScript, nil
+	return taprootAddr, nil
 }
 
 func (app *StakerApp) StakeFunds(

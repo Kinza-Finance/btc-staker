@@ -121,13 +121,13 @@ func (s *StakerService) getStakeOutput(_ *rpctypes.Context,
 
 	stakingTimeUint16 := uint16(stakingTimeBlocks)
 
-	outputAddr, err := s.staker.GetStakeOutput(stakerPubKey, amount, fpPubKeys, stakingTimeUint16)
+	taprootAddr, err := s.staker.GetStakeOutput(stakerPubKey, amount, fpPubKeys, stakingTimeUint16)
 	if err != nil {
 		return nil, err
 	}
 
 	return &ResultStakeOutput{
-		OutputAddress: hex.EncodeToString(outputAddr),
+		OutputAddress: taprootAddr,
 	}, nil
 }
 
