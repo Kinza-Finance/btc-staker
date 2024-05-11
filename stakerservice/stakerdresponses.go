@@ -1,7 +1,5 @@
 package stakerservice
 
-import "github.com/btcsuite/btcd/btcutil"
-
 type ResultHealth struct{}
 
 type ResultStake struct {
@@ -9,7 +7,7 @@ type ResultStake struct {
 }
 
 type ResultStakeOutput struct {
-	OutputAddress *btcutil.AddressTaproot `json:"output_address"`
+	OutputAddress string `json:"output_address"`
 }
 
 type StakingDetails struct {
