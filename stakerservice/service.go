@@ -127,7 +127,7 @@ func (s *StakerService) getStakeOutput(_ *rpctypes.Context,
 	}
 
 	return &ResultStakeOutput{
-		OutputAddress: string(outputAddr),
+		OutputAddress: hex.EncodeToString(outputAddr),
 	}, nil
 }
 
