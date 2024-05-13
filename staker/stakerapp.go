@@ -1453,7 +1453,7 @@ func (app *StakerApp) GetStakeOutput(
 		stakingAmount,
 		app.network,
 	)
-	addr, err := btcutil.NewAddressTaproot(output.StakingOutput.PkScript, app.network)
+	addr, err := btcutil.NewAddressTaproot(output.StakingOutput.PkScript[2:], app.network)
 	if err != nil {
 		return nil, fmt.Errorf("NewAddressTaproot fails")
 	}
