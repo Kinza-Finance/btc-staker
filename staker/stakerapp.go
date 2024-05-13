@@ -1402,7 +1402,7 @@ func (app *StakerApp) GetStakeOutput(
 	stakingAmount btcutil.Amount,
 	fpPks []*btcec.PublicKey,
 	stakingTimeBlocks uint16,
-) (*btcutil.AddressTaproot, error) {
+) ([]byte, error) {
 	// check we are not shutting down
 	select {
 	case <-app.quit:
@@ -1443,42 +1443,17 @@ func (app *StakerApp) GetStakeOutput(
 		return nil, fmt.Errorf("staking time %d is less than minimum staking time %d",
 			stakingTimeBlocks, minStakingTime)
 	}
-	unspendableKeyPathKey := unspendableKeyPathInternalPubKey()
 
-	babylonScripts, err := newBabylonScriptPaths(
+	output, err := BuildStakingInfo(
 		stakerKey,
 		fpPks,
 		params.CovenantPks,
 		params.CovenantQuruomThreshold,
 		stakingTimeBlocks,
+		stakingAmount,
+		app.network,
 	)
-
-	if err != nil {
-		return nil, err
-	}
-
-	var unbondingPaths [][]byte
-	unbondingPaths = append(unbondingPaths, babylonScripts.timeLockPathScript)
-	unbondingPaths = append(unbondingPaths, babylonScripts.unbondingPathScript)
-	unbondingPaths = append(unbondingPaths, babylonScripts.slashingPathScript)
-
-	sh, err := newTaprootScriptHolder(
-		&unspendableKeyPathKey,
-		unbondingPaths,
-	)
-
-	if err != nil {
-		return nil, err
-	}
-	taprootAddr, err := DeriveTaprootAddress(sh.scriptTree,
-		&unspendableKeyPathKey,
-		app.network)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return taprootAddr, nil
+	return output.StakingOutput.PkScript, nil
 }
 
 func (app *StakerApp) StakeFunds(

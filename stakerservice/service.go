@@ -127,7 +127,7 @@ func (s *StakerService) getStakeOutput(_ *rpctypes.Context,
 	}
 
 	return &ResultStakeOutput{
-		OutputAddress: taprootAddr.EncodeAddress(),
+		OutputAddress: string(taprootAddr),
 	}, nil
 }
 
