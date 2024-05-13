@@ -1419,11 +1419,11 @@ func (app *StakerApp) GetStakeOutput(
 		return nil, fmt.Errorf("duplicate finality provider public keys provided")
 	}
 
-	for _, fpPk := range fpPks {
-		if err := app.finalityProviderExists(fpPk); err != nil {
-			return nil, err
-		}
-	}
+	// for _, fpPk := range fpPks {
+	// 	if err := app.finalityProviderExists(fpPk); err != nil {
+	// 		return nil, err
+	// 	}
+	// }
 
 	params, err := app.babylonClient.Params()
 
