@@ -2,40 +2,38 @@ package service
 
 import (
 	"context"
+	"errors"
 
-	"github.com/babylonchain/btc-staker/cmd/stakercli/helpers"
+	service "github.com/babylonchain/btc-staker/stakerservice"
 	dc "github.com/babylonchain/btc-staker/stakerservice/client"
-	"github.com/urfave/cli"
 )
 
-func Stake(stakerAddress string, stakingAmount int64, fpPks []string, stakingTimeBlocks int64, daemonAddress string) error {
+func Stake(stakerAddress string, stakingAmount int64, fpPks []string, stakingTimeBlocks int64, daemonAddress string) (*service.ResultStake, error) {
 	client, err := dc.NewStakerServiceJsonRpcClient(daemonAddress)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	sctx := context.Background()
 
 	results, err := client.Stake(sctx, stakerAddress, stakingAmount, fpPks, stakingTimeBlocks)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	helpers.PrintRespJSON(results)
-
-	return nil
+	return results, nil
 }
 
-func Unbond(daemonAddress string, stakingTransactionHash string, feeRate int) error {
+func Unbond(daemonAddress string, stakingTransactionHash string, feeRate int) (*service.UnbondingResponse, error) {
 	client, err := dc.NewStakerServiceJsonRpcClient(daemonAddress)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	sctx := context.Background()
 
 	if feeRate < 0 {
-		return cli.NewExitError("Fee rate must be non-negative", 1)
+		return nil, errors.New("fee rate must be non-negative")
 	}
 
 	var fr *int = nil
@@ -45,28 +43,24 @@ func Unbond(daemonAddress string, stakingTransactionHash string, feeRate int) er
 
 	result, err := client.UnbondStaking(sctx, stakingTransactionHash, fr)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	helpers.PrintRespJSON(result)
-
-	return nil
+	return result, nil
 }
 
-func Unstake(daemonAddress string, stakingTransactionHash string) error {
+func Unstake(daemonAddress string, stakingTransactionHash string) (*service.SpendTxDetails, error) {
 	client, err := dc.NewStakerServiceJsonRpcClient(daemonAddress)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	sctx := context.Background()
 
 	result, err := client.SpendStakingTransaction(sctx, stakingTransactionHash)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	helpers.PrintRespJSON(result)
-
-	return nil
+	return result, nil
 }
