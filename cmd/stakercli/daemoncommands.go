@@ -19,6 +19,7 @@ var daemonCommands = []cli.Command{
 			checkDaemonHealthCmd,
 			listOutputsCmd,
 			babylonFinalityProvidersCmd,
+			getStakeOutputCmd,
 			stakeCmd,
 			unstakeCmd,
 			stakingDetailsCmd,
@@ -37,6 +38,7 @@ const (
 	stakingTimeBlocksFlag      = "staking-time"
 	stakingTransactionHashFlag = "staking-transaction-hash"
 	feeRateFlag                = "fee-rate"
+	stakerPubKeyFlag           = "staker-pubkey"
 )
 
 var (
@@ -93,6 +95,40 @@ var babylonFinalityProvidersCmd = cli.Command{
 		},
 	},
 	Action: babylonFinalityProviders,
+}
+
+var getStakeOutputCmd = cli.Command{
+	Name:      "getStakeOutput",
+	ShortName: "gsto",
+	Usage:     "Generate the output address of the staking position",
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name:  stakingDaemonAddressFlag,
+			Usage: "full address of the staker daemon in format tcp:://<host>:<port>",
+			Value: defaultStakingDaemonAddress,
+		},
+		cli.StringFlag{
+			Name:     stakerPubKeyFlag,
+			Usage:    "BTC public key of the staker",
+			Required: true,
+		},
+		cli.Int64Flag{
+			Name:     stakingAmountFlag,
+			Usage:    "Staking amount in satoshis",
+			Required: true,
+		},
+		cli.StringSliceFlag{
+			Name:     fpPksFlag,
+			Usage:    "BTC public keys of the finality providers in hex",
+			Required: true,
+		},
+		cli.Int64Flag{
+			Name:     stakingTimeBlocksFlag,
+			Usage:    "Staking time in BTC blocks",
+			Required: true,
+		},
+	},
+	Action: getStakeOutput,
 }
 
 var stakeCmd = cli.Command{
@@ -306,6 +342,29 @@ func babylonFinalityProviders(ctx *cli.Context) error {
 	}
 
 	printRespJSON(finalityProviders)
+
+	return nil
+}
+
+func getStakeOutput(ctx *cli.Context) error {
+	daemonAddress := ctx.String(stakingDaemonAddressFlag)
+
+	client, err := dc.NewStakerServiceJsonRpcClient(daemonAddress)
+	if err != nil {
+		return err
+	}
+	sctx := context.Background()
+
+	stakerKey := ctx.String(stakerPubKeyFlag)
+	stakingAmount := ctx.Int64(stakingAmountFlag)
+	fpPks := ctx.StringSlice(fpPksFlag)
+	stakingTimeBlocks := ctx.Int64(stakingTimeBlocksFlag)
+
+	results, err := client.GetStakeOutput(sctx, stakerKey, stakingAmount, fpPks, stakingTimeBlocks)
+	if err != nil {
+		return err
+	}
+	printRespJSON(results)
 
 	return nil
 }

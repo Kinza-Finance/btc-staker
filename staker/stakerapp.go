@@ -1397,6 +1397,70 @@ func (app *StakerApp) WatchStaking(
 	}
 }
 
+func (app *StakerApp) GetStakeOutput(
+	stakerKey *btcec.PublicKey,
+	stakingAmount btcutil.Amount,
+	fpPks []*btcec.PublicKey,
+	stakingTimeBlocks uint16,
+) (*btcutil.AddressTaproot, error) {
+	// check we are not shutting down
+	select {
+	case <-app.quit:
+		return nil, nil
+
+	default:
+	}
+
+	if len(fpPks) == 0 {
+		return nil, fmt.Errorf("no finality providers public keys provided")
+	}
+
+	if haveDuplicates(fpPks) {
+		return nil, fmt.Errorf("duplicate finality provider public keys provided")
+	}
+
+	// for _, fpPk := range fpPks {
+	// 	if err := app.finalityProviderExists(fpPk); err != nil {
+	// 		return nil, err
+	// 	}
+	// }
+
+	params, err := app.babylonClient.Params()
+
+	if err != nil {
+		return nil, err
+	}
+
+	slashingFee := app.getSlashingFee(params.MinSlashingTxFeeSat)
+
+	if stakingAmount <= slashingFee {
+		return nil, fmt.Errorf("staking amount %d is less than minimum slashing fee %d",
+			stakingAmount, slashingFee)
+	}
+
+	minStakingTime := GetMinStakingTime(params)
+	if uint32(stakingTimeBlocks) < minStakingTime {
+		return nil, fmt.Errorf("staking time %d is less than minimum staking time %d",
+			stakingTimeBlocks, minStakingTime)
+	}
+
+	output, err := staking.BuildStakingInfo(
+		stakerKey,
+		fpPks,
+		params.CovenantPks,
+		params.CovenantQuruomThreshold,
+		stakingTimeBlocks,
+		stakingAmount,
+		app.network,
+	)
+	addr, err := btcutil.NewAddressTaproot(output.StakingOutput.PkScript[2:], app.network)
+	if err != nil {
+		return nil, fmt.Errorf("NewAddressTaproot fails")
+	}
+	// 返回生成的Taproot地址
+	return addr, nil
+}
+
 func (app *StakerApp) StakeFunds(
 	stakerAddress btcutil.Address,
 	stakingAmount btcutil.Amount,
