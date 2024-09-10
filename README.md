@@ -499,7 +499,7 @@ ZMQPubRawTx = tcp://127.0.0.1:29002
 
 To see the complete list of configuration options, check the `stakerd.conf` file.
 
-## 4. Starting staker daemon
+## 5. Starting staker daemon
 
 You can start the staker daemon using the following command:
 
@@ -520,7 +520,7 @@ time="2023-12-08T11:48:04+05:30" level=info msg="Starting StakerApp"
 All the available CLI options can be viewed using the `--help` flag. These options
 can also be set in the configuration file.
 
-## 5. Staking operations with stakercli
+## 6. Staking operations with stakercli
 
 The following guide will show how to stake, withdraw, and unbond Bitcoin.
 
